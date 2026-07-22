@@ -1,0 +1,46 @@
+# --- manuscript source ----------------------------------------------------
+# The paper itself is kept outside version control; this repository holds the
+# dataset and the analysis pipeline only.
+manuscript/manuscript.tex
+manuscript/supplementary.tex
+manuscript/references.bib
+
+# --- third-party material -------------------------------------------------
+# Published papers are cited in references.bib with DOIs; the publisher PDFs
+# are not ours to redistribute.
+draft/
+
+# --- dependencies ---------------------------------------------------------
+manuscript/scripts/figures_d3/node_modules/
+
+# --- generated outputs ----------------------------------------------------
+# Everything below is rebuilt by `make`, `make figures` or `make docx`.
+manuscript/manuscript.pdf
+manuscript/supplementary.pdf
+manuscript/figures/*.pdf
+manuscript/figures/svg/
+manuscript/figures/data/
+manuscript/docx/
+manuscript/tables/*.tex
+manuscript/data/clean_data.csv
+manuscript/data/clean_data.pkl
+manuscript/data/risk_loading.csv
+manuscript/exploration/outputs/
+
+# --- LaTeX build artefacts ------------------------------------------------
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.spl
+*.toc
+*.synctex.gz
+
+# --- python / macOS -------------------------------------------------------
+__pycache__/
+*.pyc
+.DS_Store
+._*
