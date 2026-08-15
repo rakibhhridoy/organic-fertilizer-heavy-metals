@@ -10,13 +10,12 @@ HERE=os.path.dirname(os.path.abspath(__file__)); EXP=os.path.dirname(HERE)
 ROOT=os.path.dirname(EXP); OUT=os.path.join(EXP,"outputs")
 os.makedirs(OUT, exist_ok=True)
 sys.path.insert(0, os.path.join(ROOT,"scripts"))
-from soil_refs import CBV as BG, TR as Tr, METALS as metals
+from soil_refs import CBV as BG, TR as Tr, MAL, METALS as metals
 
 df=pd.read_pickle(os.path.join(ROOT,"data","clean_data.pkl"))
 types=["Cow dung","Bone meal","Trichocompost","Generic Organic Fertilizer",
        "Vermicompost","Horn meal","Neem cake"]
 
-MAL={"Cu":500,"Cr":50,"Pb":30,"Cd":5,"Zn":1000,"Ni":30}  # BARC organic-fertilizer limit
 
 # ---- per-sample indices ----
 S=df.copy()

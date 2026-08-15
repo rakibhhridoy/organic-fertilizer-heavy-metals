@@ -98,7 +98,7 @@ def chem(f):
 src = expand(src, "ce", 1, chem)
 
 # --------------------------------------------------- 4. frontmatter block ---
-TITLE = ("Assessment of Heavy Metal Contamination in Commercial Organic "
+TITLE = ("Assessment of Heavy Metal and Arsenic Contamination in Commercial Organic "
          "Fertilizers in Bangladesh and Its Compliance with National "
          "Regulatory Limits")
 FRONT = r"""\title{%s}

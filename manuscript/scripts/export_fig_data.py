@@ -12,7 +12,7 @@ from scipy.cluster.hierarchy import linkage, to_tree
 
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-from soil_refs import CBV, CSV, TR, METALS as metals
+from soil_refs import CBV, CSV, TR, MAL, METALS as metals
 
 DATA = os.path.join(ROOT, "data")
 EXP  = os.path.join(ROOT, "exploration", "outputs")
@@ -23,7 +23,6 @@ df = pd.read_pickle(os.path.join(DATA, "clean_data.pkl"))
 types = ["Cow dung", "Bone meal", "Trichocompost", "Generic Organic Fertilizer",
          "Vermicompost", "Horn meal", "Neem cake"]
 SHORT = {"Generic Organic Fertilizer": "Generic OF"}
-MAL = {"Cu": 500, "Cr": 50, "Pb": 30, "Cd": 5, "Zn": 1000, "Ni": 30}
 
 
 def dump(name, obj):

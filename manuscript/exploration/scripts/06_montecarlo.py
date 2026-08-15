@@ -64,7 +64,11 @@ for m in metals:
         cc=c_plant*cr6 if m=="Cr" else c_plant
         ldd=cc*P.CONSUMER["Cf"]*IR*365*ED/(BW*ATc)
         CR+=ldd*P.SF_o[m]
+# Fertilizer concentrations are carried into the sensitivity analysis for the two
+# elements that drive the carcinogenic term, so the comparison against the
+# exposure parameters is explicit rather than assumed.
 inputs["Conc_Cr"]=conc_draw["Cr"]
+inputs["Conc_As"]=conc_draw["As"]
 def summ(x): return dict(mean=np.mean(x),median=np.median(x),P95=np.percentile(x,95))
 print("HI:", {k:round(v,3) for k,v in summ(HI).items()}, " P(HI>1)=%.3f"%np.mean(HI>1))
 print("CR:", {k:f"{v:.2e}" for k,v in summ(CR).items()},

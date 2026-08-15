@@ -20,7 +20,15 @@ with open(os.path.join(TBL,"table_indices_body.tex"),"w") as f:
 # --- Table: KW H, raw p, BH-adjusted p, eta2, Dunn pairs ---
 # Significance is claimed on the BH-adjusted p across the 8-variable family.
 kw=pd.read_csv(os.path.join(OUTP,"kw_effectsize.csv"))
-dunn={"Cu":"BM--GOF; GOF--HM","Ni":"GOF--HM","Cd":"--","Cr":"--","Pb":"--","Zn":"--"}
+# Dunn pairs are read from the analysis output rather than transcribed, so the
+# table cannot drift from the test that produced it.
+ABBR={"Cow dung":"CD","Bone meal":"BM","Trichocompost":"TC",
+      "Generic Organic Fertilizer":"GOF","Vermicompost":"VC","Horn meal":"HM",
+      "Neem cake":"NC"}
+_dp=pd.read_csv(os.path.join(OUTP,"dunn_pairs.csv"))
+dunn={}
+for m,g in _dp.groupby("Metal"):
+    dunn[m]="; ".join(f"{ABBR[a]}--{ABBR[b]}" for a,b in zip(g["GroupA"],g["GroupB"]))
 with open(os.path.join(TBL,"table_kw_body.tex"),"w") as f:
     for _,r in kw.iterrows():
         m=r['Metal']; sig="Yes" if r['p_BH']<0.05 else "No"

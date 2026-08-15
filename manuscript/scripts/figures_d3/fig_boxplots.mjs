@@ -6,23 +6,47 @@
 import { d3, axisBottom, axisLeft, axisLabel,
          decades, logFmt, typeColor, INK, INK2, MUTED, RULE, FS } from "./theme.mjs";
 
+// Grid geometry. The panel count is data-driven (it grew from six to seven when
+// arsenic was added), so rows, row offsets and the canvas height are all derived
+// rather than fixed. A row needs the taller gap only when one of its panels
+// carries the rotated category axis, i.e. has no panel directly beneath it.
+export const COLS = 3, PANEL_H = 92, GAP_TIGHT = 34, GAP_AXIS = 60;
+
+const hasAxis = (i, n) => i + COLS >= n;
+const rowHasAxis = (row, n) =>
+  d3.range(row * COLS, Math.min((row + 1) * COLS, n)).some(i => hasAxis(i, n));
+
+export function gridHeightFor(n) {
+  const rows = Math.ceil(n / COLS);
+  let h = rows * PANEL_H;
+  for (let r = 0; r < rows - 1; r++) h += rowHasAxis(r, n) ? GAP_AXIS : GAP_TIGHT;
+  return h;
+}
+
 export function panel(svg, data, { W, top, mL, mR, gridHeight }) {
   const metals = data.metals, types = data.types, MAL = data.MAL;
-  const cols = 3, rows = 2;
+  const n = metals.length;
+  const cols = COLS, rows = Math.ceil(n / cols);
   const mT = top;
-  const gapX = 30, gapY = 60;
+  const gapX = 30;
   const pw = (W - mL - mR - gapX * (cols - 1)) / cols;
-  const ph = (gridHeight - gapY) / rows;
+  const ph = PANEL_H;
   const dunn = data.dunn || [];
 
-  axisLabel(svg, 14, mT + (ph * 2 + gapY) / 2, "Concentration (mg kg⁻¹, log scale)", -90);
+  // Cumulative y offset of each row.
+  const rowY = [0];
+  for (let r = 1; r < rows; r++) {
+    rowY[r] = rowY[r - 1] + ph + (rowHasAxis(r - 1, n) ? GAP_AXIS : GAP_TIGHT);
+  }
+
+  axisLabel(svg, 14, mT + gridHeight / 2, "Concentration (mg kg⁻¹, log scale)", -90);
 
   const x = d3.scaleBand().domain(types).range([0, pw]).padding(0.35);
 
   metals.forEach((m, i) => {
     const panel = data.panels[m];
     const col = i % cols, row = Math.floor(i / cols);
-    const gx = mL + col * (pw + gapX), gy = mT + row * (ph + gapY);
+    const gx = mL + col * (pw + gapX), gy = mT + rowY[row];
     const g = svg.append("g").attr("transform", `translate(${gx},${gy})`);
 
     const lo = d3.min(panel, d => d.min);
@@ -81,7 +105,7 @@ export function panel(svg, data, { W, top, mL, mR, gridHeight }) {
         .attr("fill", INK).text("*");
     });
 
-    if (row === rows - 1) {
+    if (hasAxis(i, n)) {
       axisBottom(g.append("g").attr("transform", `translate(0,${ph})`), x, { rotate: -35 });
     } else {
       g.append("line").attr("x1", 0).attr("x2", pw).attr("y1", ph).attr("y2", ph)

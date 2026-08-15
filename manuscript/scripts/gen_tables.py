@@ -2,7 +2,7 @@
 """Emit LaTeX table bodies (booktabs) from the cleaned dataset. Reproducible.
 Run:  python3 scripts/gen_tables.py   (from the manuscript/ directory)
 """
-import os, pandas as pd, numpy as np
+import os, sys, pandas as pd, numpy as np
 from scipy import stats
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -12,10 +12,10 @@ TBL  = os.path.join(ROOT, "tables")
 os.makedirs(TBL, exist_ok=True)
 
 df = pd.read_pickle(os.path.join(DATA, "clean_data.pkl"))
-metals = ["Cu","Cr","Pb","Cd","Zn","Ni"]
 types = ["Cow dung","Bone meal","Trichocompost","Generic Organic Fertilizer",
          "Vermicompost","Horn meal","Neem cake"]
-MAL = {"Cu":500,"Cr":50,"Pb":30,"Cd":5,"Zn":1000,"Ni":30}
+sys.path.insert(0, HERE)
+from soil_refs import MAL, METALS as metals
 
 def esc(t): return t.replace("&","\\&")
 
@@ -41,14 +41,14 @@ with open(os.path.join(TBL,"table2_body.tex"),"w") as f:
                 f"{thou(r['Yrs_to_limit_strict'])} \\\\\n")
 
 with open(os.path.join(TBL,"table3_body.tex"),"w") as f:
-    for m in ["Cd","Pb","Cr","Ni","Zn","Cu"]:
+    for m in ["Cd","Pb","Cr","Ni","Zn","Cu","As"]:
         ex = df[df[m] > MAL[m]]
         osr = 100*len(ex)/len(df)
         rng = f"{df[m].min():.2f}--{df[m].max():.2f}"
         which = ", ".join(sorted({esc(t) for t in ex['Type']})) if len(ex) else "--"
         f.write(f"{m} & {MAL[m]:g} & {rng} & {df[m].mean():.2f} & {len(ex)} & {osr:.1f} & {which} \\\\\n")
 
-# SI Kruskal-Wallis table: raw and BH-adjusted p across the 8-variable family.
+# SI Kruskal-Wallis table: raw and BH-adjusted p across the 9-variable family.
 fam = metals+["pH","EC"]
 _raw = {m: stats.kruskal(*[g[m].values for _,g in df.groupby("Type")]) for m in fam}
 _items = sorted(((m, _raw[m][1]) for m in fam), key=lambda x: x[1])

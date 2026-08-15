@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 HERE=os.path.dirname(os.path.abspath(__file__)); EXP=os.path.dirname(HERE)
 ROOT=os.path.dirname(EXP); OUT=os.path.join(EXP,"outputs")
 df=pd.read_pickle(os.path.join(ROOT,"data","clean_data.pkl"))
-metals=["Cu","Cr","Pb","Cd","Zn","Ni"]
+import sys
+sys.path.insert(0, os.path.join(ROOT,"scripts"))
+from soil_refs import METALS as metals
 types=["Cow dung","Bone meal","Trichocompost","Generic Organic Fertilizer",
        "Vermicompost","Horn meal","Neem cake"]
 

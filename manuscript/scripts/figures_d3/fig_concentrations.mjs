@@ -5,14 +5,15 @@
 // variation in (a) is attributable to fertilizer type, next to the distributions
 // themselves. Significant pairwise contrasts appear as brackets in (a).
 import { svgRoot, serialize, title, panelTag } from "./theme.mjs";
-import { panel as boxPanel } from "./fig_boxplots.mjs";
+import { panel as boxPanel, gridHeightFor } from "./fig_boxplots.mjs";
 import { panel as effectPanel } from "./fig_effectsize.mjs";
 
 const W = 540;
 
 export function render(data) {
-  const rowA = { top: 80, gridHeight: 244, mL: 52, mR: 14 };
-  const rowB = { top: 408, height: 104, mL: 52, mR: 96 };
+  // Panel (a) grows with the number of elements; everything below it follows.
+  const rowA = { top: 80, gridHeight: gridHeightFor(data.metals.length), mL: 52, mR: 14 };
+  const rowB = { top: rowA.top + rowA.gridHeight + 84, height: 104, mL: 52, mR: 96 };
   const H = rowB.top + rowB.height + 56;
 
   const svg = svgRoot(W, H);

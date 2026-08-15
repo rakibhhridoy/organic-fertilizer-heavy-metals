@@ -27,8 +27,8 @@ export const TYPES = ["Cow dung", "Bone meal", "Trichocompost", "Generic OF",
                       "Vermicompost", "Horn meal", "Neem cake"];
 export const typeColor = d3.scaleOrdinal().domain(TYPES).range(CAT.slice(0, 7));
 
-export const METALS = ["Cu", "Cr", "Pb", "Cd", "Zn", "Ni"];
-export const metalColor = d3.scaleOrdinal().domain(METALS).range(CAT.slice(0, 6));
+export const METALS = ["Cu", "Cr", "Pb", "Cd", "Zn", "Ni", "As"];
+export const metalColor = d3.scaleOrdinal().domain(METALS).range(CAT.slice(0, 7));
 
 // Marker shapes — secondary encoding so scatter identity is never colour-alone
 export const TYPE_SYMBOL = d3.scaleOrdinal().domain(TYPES).range([

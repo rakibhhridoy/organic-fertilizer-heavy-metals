@@ -44,3 +44,9 @@ __pycache__/
 *.pyc
 .DS_Store
 ._*
+
+# --- scratch inbox --------------------------------------------------------
+# Working drop for incoming lab files and review memos. The data that matters
+# is copied into manuscript/data/; the memo in here relates to a different
+# manuscript and is not ours to redistribute.
+newcorrectiondata/

@@ -1,0 +1,19 @@
+# Bangladesh maximum allowable limits (MAL) for toxic elements in organic
+# fertilizer, in mg/kg dry weight. Single source of truth -- 03_indices.py,
+# gen_tables.py and export_fig_data.py all read this via scripts/soil_refs.py.
+# Do not hard-code these anywhere else.
+#
+# Source: BARC Fertilizer Recommendation Guide (2024), Appendix-3, tabulating the
+# limits originally gazetted by the Ministry of Agriculture (2008). Zn and Cu are
+# specified there as percentages (0.1% and 0.05%) and converted here.
+#
+# Mercury (0.1 mg/kg) is part of the same standard but was not determined in this
+# study, so it is omitted rather than listed with a missing value.
+Element,MAL_mgkg
+Cu,500
+Cr,50
+Pb,30
+Cd,5
+Zn,1000
+Ni,30
+As,20

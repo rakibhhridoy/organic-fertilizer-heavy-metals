@@ -18,6 +18,12 @@
 #             soils; Bengal Basin sediments are naturally Cr-rich (121-200 mg/kg),
 #             so the Cr guideline of 64 is not directly transferable.
 # Tr_hakanson : Hakanson (1980) toxic-response factor for the ecological risk index.
+#
+# Arsenic (added 2026-08-15, with the As determinations): Cbv 6.83 is the
+# Kabata-Pendias world-soil mean, on the same basis as the other six. Csv 55 is
+# the VROM intervention value; Csv_strict 12 the CCME agricultural guideline;
+# Tr 10 the Hakanson factor. Arsenic is a metalloid rather than a metal, so the
+# manuscript says "heavy metals and arsenic" where precision matters.
 Metal,Cbv_mgkg,Csv_mgkg,Csv_strict_mgkg,Tr_hakanson
 Cu,38.9,190,63,5
 Cr,59.5,380,64,2
@@ -25,3 +31,4 @@ Pb,27.0,530,70,5
 Cd,0.41,12,1.4,30
 Zn,70.0,720,200,1
 Ni,29.0,210,50,5
+As,6.83,55,12,10

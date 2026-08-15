@@ -3,16 +3,19 @@
 Values are standard literature/USEPA defaults; VERIFY and localise before submission.
 Concentrations in mg/kg; doses in mg/kg-day.
 """
-metals = ["Cu","Cr","Pb","Cd","Zn","Ni"]
+metals = ["Cu","Cr","Pb","Cd","Zn","Ni","As"]
 
 # Oral reference doses RfD_o (mg/kg-day) -- USEPA IRIS/RSL
-RfD_o  = {"Cu":0.04,"Cr":0.003,"Pb":0.0035,"Cd":0.001,"Zn":0.30,"Ni":0.02}
+RfD_o  = {"Cu":0.04,"Cr":0.003,"Pb":0.0035,"Cd":0.001,"Zn":0.30,"Ni":0.02,"As":0.0003}
 # Gastro-intestinal absorption factor (for dermal RfD = RfD_o * GIABS)
-GIABS  = {"Cu":1.0,"Cr":0.025,"Pb":1.0,"Cd":0.05,"Zn":1.0,"Ni":1.0}
-# Dermal absorption fraction ABS_d
-ABS_d  = {"Cu":0.001,"Cr":0.001,"Pb":0.001,"Cd":0.001,"Zn":0.001,"Ni":0.001}
-# Oral cancer slope factors SF_o (per mg/kg-day); None = not via oral ingestion
-SF_o   = {"Cu":None,"Cr":0.5,"Pb":0.0085,"Cd":None,"Zn":None,"Ni":None}
+GIABS  = {"Cu":1.0,"Cr":0.025,"Pb":1.0,"Cd":0.05,"Zn":1.0,"Ni":1.0,"As":1.0}
+# Dermal absorption fraction ABS_d. 0.03 for arsenic is the USEPA RSL value;
+# the others take the default 0.001 for inorganic species.
+ABS_d  = {"Cu":0.001,"Cr":0.001,"Pb":0.001,"Cd":0.001,"Zn":0.001,"Ni":0.001,"As":0.03}
+# Oral cancer slope factors SF_o (per mg/kg-day); None = not via oral ingestion.
+# Arsenic 1.5 is the IRIS value for INORGANIC As, applied to total As here, which
+# is conservative: some fraction of the total is organic and far less toxic.
+SF_o   = {"Cu":None,"Cr":0.5,"Pb":0.0085,"Cd":None,"Zn":None,"Ni":None,"As":1.5}
 # Fraction of total Cr assumed present as carcinogenic Cr(VI)
 CR6_FRACTION = 1.0/7.0
 
@@ -44,4 +47,6 @@ _sys.path.insert(0, _os.path.join(
     _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))),
     "scripts"))
 from soil_refs import CBV as BG_SOIL
-TF      = {"Cu":0.10,"Cr":0.04,"Pb":0.02,"Cd":0.30,"Zn":0.40,"Ni":0.08}
+# Arsenic is poorly translocated to edible tissue relative to Cd or Zn; 0.02 sits
+# in the middle of the 0.01-0.04 range reported for leafy and fruiting vegetables.
+TF      = {"Cu":0.10,"Cr":0.04,"Pb":0.02,"Cd":0.30,"Zn":0.40,"Ni":0.08,"As":0.02}

@@ -1,7 +1,7 @@
 # Heavy Metals in Commercial Organic Fertilizers (Bangladesh) — Manuscript
 
 Reproducible analysis pipeline for the research article:
-*Assessment of Heavy Metal Contamination in Commercial Organic Fertilizers in
+*Assessment of Heavy Metal and Arsenic Contamination in Commercial Organic Fertilizers in
 Bangladesh and Its Compliance with National Regulatory Limits.*
 
 ## Layout
@@ -20,14 +20,19 @@ manuscript/
 ├── figures/            # Vector PDF figures (generated)
 ├── tables/             # LaTeX table bodies, \input by the .tex (generated)
 ├── data/               # Raw + cleaned data
-│   ├── OF_HM_TGT.xlsx  #   THE dataset. Sheet1 concentrations (blank-corrected,
-│   │                   #   supplier-labelled, BDL flags); Sheet2 calibration/LOD/LOQ;
-│   │                   #   Sheet3 spike recovery. Nothing else is a data source.
+│   ├── OF_HM_TGTup.xlsx #  THE dataset. Sheet1 concentrations (blank-corrected,
+│   │                   #   supplier-labelled, BDL flags, As in ug/kg); Sheet2
+│   │                   #   calibration/LOD/LOQ; Sheet3 spike recovery.
+│   ├── OF_HM_As.xlsx   #   Primary hydride-generation record for As; provenance
+│   │                   #   for the As column and the cross-check against it.
+│   ├── OF_HM_TGT.xlsx  #   SUPERSEDED by TGTup (identical but for As). Unread.
 │   ├── soil_reference_values.csv  # Cbv / Csv / toxic-response factors
+│   ├── fertilizer_limits.csv      # Bangladesh MAL (single source of truth)
 │   ├── clean_data.csv/.pkl
 │   └── risk_loading.csv
 └── scripts/            # Reproducible analysis (Python 3: pandas, scipy, matplotlib)
-    ├── 01_clean.py     #   raw -> clean_data (BDL rule, brand parsing, outlier flags)
+    ├── qaqc.py         #   calibration/LOD/LOQ/recovery loader + Ni LOD correction
+    ├── 01_clean.py     #   raw -> clean_data (BDL rule, brand parsing, As merge, outliers)
     ├── 02_risk.py      #   soil-loading risk model (Su et al. 2025)
     ├── gen_tables.py   #   -> tables/*.tex
     ├── gen_tables_qaqc.py #   -> QA/QC table bodies
@@ -64,13 +69,15 @@ make
   Savar, Narayanganj), sampling March–May 2026, 2 mm sieve, digestion 2 g → 50 mL
   (factor 25), Varian AA240, pH in 1:2.5 and EC in 1:5 (w/v) suspension.
   Standards described generically (certified 1000 mg/L single-element stocks, no supplier named).
-- **LOD units — largely resolved.** Sheet2 LOD/LOQ are solution-phase (mg/L). At the
-  corrected factor of 25 (2 g → 50 mL) they rescale to 0.15 (Cd) – 6.10 (Zn) mg/kg:
-  Cu and Zn are fully consistent with the reported data, Cr and Pb nearly so (1 and 3
-  values below). **Ni remains the exception** — 14/35 values fall under its 2.33 mg/kg
-  method limit — so §2.4 names Ni explicitly and flags its low end as indicative.
-  Non-detects are still assigned operationally (blank subtraction), so one criterion
-  applies to every element.
+- **LOD units — RESOLVED (2026-08-15).** The analyst's correction memo gives Ni
+  LOD 0.0093 / LOQ 0.0282 mg/L, exactly one decimal place below the workbook values
+  (0.09318 / 0.28236) with the ICH ratio of 3.030 preserved — a transcription slip.
+  Applied in `scripts/qaqc.py` (`NI_LOD_CORRECTION`), which keeps the workbook value
+  alongside so the change is auditable. Ni's method LOD falls from 2.33 to
+  0.233 mg/kg and now exceeds only 2 of 35 values instead of 14. Note the honest
+  residue: **cadmium** is now the element with the most sub-LOD values (6), and 29 of
+  35 Cd values sit between LOD and LOQ; §2.4 states this in full. Table 1 reports both
+  the instrumental and the rescaled method limits.
 - **Calibration range** — Sheet2 gives slope/LOD/LOQ but not the working-standard
   concentrations, so the calibration range is no longer documented in Table 1. Add it if
   the journal asks.
@@ -91,7 +98,10 @@ make
 - **Funding / acknowledgements** — DONE. Funded by the University Grants Commission of
   Bangladesh (no grant number cited, at the authors' instruction); lab facilities
   acknowledged to the Dept. of Soil, Water and Environment, DU.
-- **As & Hg** — not measured; noted as a limitation. Add if data become available.
+- **As** — MEASURED (added 2026-08-15, `OF_HM_As.xlsx` / TGTup Sheet1). Hydride
+  generation on the AA240FS with an ETC-60 cell; digest factor 125 (2 g → 50 mL then
+  5× dilution). Mean 1.16, range 0.07–4.35 mg/kg; complies with the 20 mg/kg MAL in
+  every sample. **Hg** — still not measured; the one remaining regulated element.
 
 ## Figures
 
@@ -135,7 +145,7 @@ regenerates every table body and figure from it.
 ## Key result
 
 Of 35 samples across 7 fertilizer categories, all comply with the Bangladesh
-maximum allowable limits for Cu, Cd, Zn and Ni; only Cr and Pb exceed (each
+maximum allowable limits for Cu, Cd, Zn, Ni and As; only Cr and Pb exceed (each
 5.7 %, 2/35). Generic organic fertilizer and certain oil-cake / vermicompost
 products carry the highest metal burdens. Soil-accumulation risk is low at mean
 concentrations (Tmax ≈ 3,300–26,500 yr against the Dutch intervention values)
@@ -143,7 +153,37 @@ but localised hotspots warrant batch-level monitoring.
 
 Figures are current as of `data/OF_HM_TGT.xlsx` and the reference values in
 `data/soil_reference_values.csv`.
-Mean concentrations: Zn 75.2 > Cu 23.5 > Cr 16.8 > Pb 9.9 > Ni 4.2 > Cd 0.44 mg/kg.
+Mean concentrations: Zn 75.2 > Cu 23.5 > Cr 16.8 > Pb 9.9 > Ni 4.2 > As 1.16 >
+Cd 0.44 mg/kg.
+
+## Arsenic (added 2026-08-15)
+
+As is a full seventh element: descriptives, BH-corrected KW, log-PCA, CF/PLI/RI
+and both health-risk pathways. What it changed:
+
+- **Strongest between-category signal in the dataset**: η² = 0.486, p_BH = 0.029,
+  ahead of Cu and Ni (0.354). Highest in generic OF (1.97) and vermicompost (1.75),
+  lowest in neem cake (0.43).
+- **Correlates with Ni at ρ = 0.83**, the strongest pair in the matrix, and loads
+  0.82 on the single retained PC. Reads as a shared feedstock, not an As-specific
+  source — which is the interesting result given Bangladesh's groundwater arsenic.
+- **Compliance unaffected**: max 4.35 mg/kg against a 20 mg/kg MAL; CF max 0.64, so
+  As never even reaches world-soil background.
+- **Health risk moved materially.** Consumer HI 0.58 → 0.77, CR 3.2e-5 → 6.8e-5.
+  Monte Carlo P(CR > 1e-4) jumped 7.7 % → 40.0 %, P95 HI 1.11 → 1.45.
+  **Read the sensitivity analysis before quoting those**: SRRC for fertilizer As
+  and Cr content is 0.004 apiece, i.e. the result is driven by assumed soil
+  background and exposure parameters, not by the products. The manuscript says so
+  explicitly in §3.8 and the Discussion; do not let that framing get edited out.
+
+### Known data defect in OF_HM_TGTup.xlsx
+
+Sheet1's As column duplicates the generic-OF block into the five cow-dung rows,
+losing the measured cow-dung values. The same workbook's Sheet3 contradicts it
+(cow dung carries the C-block recovery, 101.53 ± 8.86 = C1–C3), and OF_HM_As.xlsx
+has the real values. `01_clean.py` cross-checks the two and prefers the primary
+record, printing a warning naming the five samples. The check clears itself once
+Sheet1 is fixed; results are already correct either way.
 
 Note the reference-value change (2026-07-21) moved several secondary findings:
 PLI and RI now classify **every** category as unpolluted / low risk (Generic OF

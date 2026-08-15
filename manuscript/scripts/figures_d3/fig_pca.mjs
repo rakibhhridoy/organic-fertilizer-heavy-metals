@@ -40,15 +40,41 @@ export function panel(svg, data, { W, top, height, mL, mR }) {
              : L.pc2 < 0 ? y.domain()[0] / L.pc2 : Infinity;
     return Math.min(sx, sy);
   });
-  data.loadings.forEach(L => {
+  // Draw the arrows, then place their labels. Two arrows that point almost the
+  // same way (Pb and As do) would otherwise print their labels on top of each
+  // other, so near-collinear labels are nudged apart perpendicular to the arrow.
+  const marks = data.loadings.map(L => {
     const ex = x(L.pc1 * scale), ey = y(L.pc2 * scale);
     g.append("line").attr("x1", x(0)).attr("y1", y(0)).attr("x2", ex).attr("y2", ey)
       .attr("stroke", MUTED).attr("stroke-width", 1.2).attr("opacity", 0.85);
     g.append("circle").attr("cx", ex).attr("cy", ey).attr("r", 1.6).attr("fill", MUTED);
     const dx = ex - x(0), dy = ey - y(0), len = Math.hypot(dx, dy) || 1;
-    g.append("text").attr("x", ex + (dx / len) * 9).attr("y", ey + (dy / len) * 9 + 3)
+    return { metal: L.metal, len,
+             lx: ex + (dx / len) * 9, ly: ey + (dy / len) * 9 + 3,
+             px: -dy / len, py: dx / len };   // unit perpendicular
+  });
+
+  const halfW = m => 2.6 * m.metal.length + 1.5, HALF_H = 4.5;
+  for (let pass = 0; pass < 4; pass++) {
+    for (let i = 0; i < marks.length; i++) {
+      for (let j = i + 1; j < marks.length; j++) {
+        const a = marks[i], b = marks[j];
+        const ox = halfW(a) + halfW(b) - Math.abs(a.lx - b.lx);
+        const oy = 2 * HALF_H - Math.abs(a.ly - b.ly);
+        if (ox <= 0 || oy <= 0) continue;          // boxes already clear
+        // Push the shorter arrow's label aside; the dominant loading keeps its place.
+        const move = a.len < b.len ? a : b;
+        const step = Math.min(ox, oy) / 2 + 1;
+        move.lx += move.px * step;
+        move.ly += move.py * step;
+      }
+    }
+  }
+
+  marks.forEach(m => {
+    g.append("text").attr("x", m.lx).attr("y", m.ly)
       .attr("text-anchor", "middle").attr("font-size", FS.annot)
-      .attr("font-weight", 600).attr("fill", INK).text(L.metal);
+      .attr("font-weight", 600).attr("fill", INK).text(m.metal);
   });
 
   // sample markers: hue + shape
