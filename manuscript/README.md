@@ -65,10 +65,23 @@ make
 
 - **Author block** — DONE. Ahnaf Ibne Nasir (first), Md Rakib Hasan (second, corresponding);
   equal contribution footnote on both. CRediT confirmed.
-- **Methods specifics** — DONE except one. Study area (greater Dhaka: Dhaka, Gazipur,
+- **Methods specifics** — DONE. Study area (greater Dhaka: Dhaka, Gazipur,
   Savar, Narayanganj), sampling March–May 2026, 2 mm sieve, digestion 2 g → 50 mL
-  (factor 25), Varian AA240, pH in 1:2.5 and EC in 1:5 (w/v) suspension.
+  (factor 25; 125 for As, whose aliquot is diluted 5×), Varian AA240FS, pH in
+  1:2.5 and EC in 1:5 (w/v) suspension.
   Standards described generically (certified 1000 mg/L single-element stocks, no supplier named).
+- **Digestion conditions — RESOLVED (2026-08-15)**, from `Digestion_Parameters.docx`
+  (also in `data/`). Per-matrix HNO₃+HClO₄ volume, block temperature and duration;
+  now SI Table S3, summarised in §2.2. Most matrices: 10+5 mL, 245 °C, 3 h 15 min.
+  Cow dung 250 °C; vermicompost 12+5 mL / 250 °C / 3 h 20 min; neem cake
+  12+5 mL / 260 °C / 3 h 25 min. **Note** the source table's column header reads
+  "Duration (min)" but the values are h:mm — 3:15 is 3 h 15 min, not 3.25 minutes,
+  which no perchloric digest could achieve. Interpreted as h:mm throughout.
+- **Arsenic units.** "ppb" means two different things in the workbooks: TGTup
+  Sheet1's `As ppb` column is µg/kg (a solid mass fraction), while Sheet2's
+  `1.3213 (ppb)` is µg/L (a solution-phase instrumental limit). `01_clean.py`
+  divides the first by 1000 to reach mg/kg; `qaqc.py` divides the second by 1000
+  to reach mg/L and then applies the ×125 factor. Do not conflate them.
 - **LOD units — RESOLVED (2026-08-15).** The analyst's correction memo gives Ni
   LOD 0.0093 / LOQ 0.0282 mg/L, exactly one decimal place below the workbook values
   (0.09318 / 0.28236) with the ICH ratio of 3.030 preserved — a transcription slip.
