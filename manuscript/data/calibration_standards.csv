@@ -1,0 +1,29 @@
+# Working calibration standards and the %RSD of replicate instrument readings at
+# each level, transcribed from MajorRevision/_RSD.xlsx (received 2026-11-05).
+# Treated as the complete calibration series (author decision 2026-11-06).
+# Units: mg/L for the flame-AAS elements, ug/L for As (HG-AAS). Only the As
+# digests were diluted beyond the 25-fold make-up (factor 125, see qaqc.py).
+# Revision table S25 only; no reported concentration depends on this file.
+Element,Unit,Level,RSD_pct
+Cd,mg/L,0.25,0.6
+Cd,mg/L,0.5,0.5
+Cd,mg/L,1,0.3
+Cr,mg/L,1.25,0.9
+Cr,mg/L,2.5,0.7
+Cr,mg/L,5,0.9
+Pb,mg/L,2.5,0.3
+Pb,mg/L,5,0.5
+Pb,mg/L,10,0.1
+Zn,mg/L,0.5,0.6
+Zn,mg/L,1,0.6
+Zn,mg/L,2,0.2
+Cu,mg/L,1,1.3
+Cu,mg/L,2,0.9
+Cu,mg/L,4,0.8
+Ni,mg/L,1.5,0.8
+Ni,mg/L,3,0.6
+Ni,mg/L,6,0
+As,ug/L,5,2.9
+As,ug/L,10,2
+As,ug/L,15,1.7
+As,ug/L,20,0.2

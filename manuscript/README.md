@@ -2,7 +2,7 @@
 
 Reproducible analysis pipeline for the research article:
 *Assessment of Heavy Metal and Arsenic Contamination in Commercial Organic Fertilizers in
-Bangladesh and Its Compliance with National Regulatory Limits.*
+Bangladesh with Soil Accumulation, Regulatory Compliance, and Health Risk Evaluation.*
 
 ## Layout
 
@@ -61,6 +61,34 @@ python3 scripts/gen_tables.py && python3 scripts/figures_pdf.py
 make
 ```
 
+## Submission folders
+
+Two journals, one source. `manuscript.tex` carries a `\SPRINGERFORM` switch that
+selects the Elsevier or Springer form, so there is never a second manuscript to keep
+in sync.
+
+```
+submissions/
+  EnvironmentalAdvances/   PRIMARY   Elsevier form, 21 pp   (gold OA: APC applies)
+  EGAH/                    secondary Springer form, 22 pp
+```
+
+Each folder is complete and directly uploadable: its `manuscript.pdf` is already the
+right form for that journal, alongside `supplementary.pdf`, `cover_letter.pdf`,
+`Highlights.txt`, the form-field and questionnaire notes, a `Turnitin/` copy and a
+flat standalone `upload/` source set.
+
+Rebuild everything with:
+
+```
+make submissions
+```
+
+Hand-written files in those folders (`UPLOAD.txt`, `Submission_Info.txt`,
+`SUBMISSION_FORM_FIELDS.md`, `Submission_Questionnaire.txt`, `Highlights.txt`,
+`cover_letter.tex`) are never overwritten by the build. Everything else there is a
+generated copy; edit the sources at the manuscript root instead.
+
 ## Before submission — outstanding items
 
 - **Author block** — DONE. Ahnaf Ibne Nasir (first), Md Rakib Hasan (second, corresponding);
@@ -79,7 +107,7 @@ make
   which no perchloric digest could achieve. Interpreted as h:mm throughout.
 - **Arsenic units.** "ppb" means two different things in the workbooks: TGTup
   Sheet1's `As ppb` column is µg/kg (a solid mass fraction), while Sheet2's
-  `1.3213 (ppb)` is µg/L (a solution-phase instrumental limit). `01_clean.py`
+  `1.3213 (ppb)` is µg/L (the method limit on a solution basis). `01_clean.py`
   divides the first by 1000 to reach mg/kg; `qaqc.py` divides the second by 1000
   to reach mg/L and then applies the ×125 factor. Do not conflate them.
 - **LOD units — RESOLVED (2026-08-15).** The analyst's correction memo gives Ni
@@ -89,8 +117,25 @@ make
   alongside so the change is auditable. Ni's method LOD falls from 2.33 to
   0.233 mg/kg and now exceeds only 2 of 35 values instead of 14. Note the honest
   residue: **cadmium** is now the element with the most sub-LOD values (6), and 29 of
-  35 Cd values sit between LOD and LOQ; §2.4 states this in full. Table 1 reports both
-  the instrumental and the rescaled method limits.
+  35 Cd values sit between LOD and LOQ; §2.4 states this in full. Table 1 reports the
+  method limits on a dry-sample basis.
+- **LOD/LOQ terminology — RESOLVED (2026-08-19).** Second analyst memo: the reported
+  LOD/LOQ are *method* limits, computed as 3.3σ/m and 10σ/m from σ = the SD of seven
+  reagent blanks carried through the full digestion, so they carry the reagent and
+  matrix contribution. The instrumental LOD/LOQ from the AA240FS manual was never used
+  and must not appear in the manuscript; supply it separately only if a reviewer asks.
+  Earlier revisions wrongly labelled the mg/L pair "instrumental figures of merit
+  characterising the calibration". Fixed in `qaqc.py` (docstring), `gen_tables_qaqc.py`
+  (Table 1 now carries mg/kg only; mg/L moved to Supplementary Table S15), the QA/QC and
+  Data-processing prose, and the Table 1 caption. No number changed, only what they are
+  called and where they are printed. Note the knock-on: the "LODs ranged from 0.0013 (As)
+  to 0.244 mg/L (Zn)" sentence had to be restated as 0.15 (Cd) to 6.10 mg/kg (Zn) with
+  As at 0.165, because the ×125 factor for As means As is no longer the lowest limit on
+  a sample basis.
+- **"LOD/2" was a misnomer — corrected 2026-08-19.** Non-detects are substituted with
+  half the *lowest quantified value* (0.044 Cd, 0.016 Ni mg/kg), which is NOT half the
+  method LOD (0.077 Cd, 0.116 Ni). The prose no longer writes it as "LOD/2". The
+  substitution values themselves are unchanged, by decision, so no downstream number moves.
 - **Calibration range** — Sheet2 gives slope/LOD/LOQ but not the working-standard
   concentrations, so the calibration range is no longer documented in Table 1. Add it if
   the journal asks.
@@ -108,9 +153,10 @@ make
   references are queued to reach full journal density (~45) once the web-search
   quota resets. Only the soil background/safe values these support still need
   local substitution.
-- **Funding / acknowledgements** — DONE. Funded by the University Grants Commission of
-  Bangladesh (no grant number cited, at the authors' instruction); lab facilities
-  acknowledged to the Dept. of Soil, Water and Environment, DU.
+- **Funding / acknowledgements** — DONE. Declares no funding source (changed 2026-08-23;
+  the earlier UGC attribution came out of both the Funding and the Acknowledgements).
+  Lab facilities acknowledged to the Dept. of Soil, Water and Environment, DU, and to
+  BCSIR.
 - **As** — MEASURED (added 2026-08-15, `OF_HM_As.xlsx` / TGTup Sheet1). Hydride
   generation on the AA240FS with an ETC-60 cell; digest factor 125 (2 g → 50 mL then
   5× dilution). Mean 1.16, range 0.07–4.35 mg/kg; complies with the 20 mg/kg MAL in

@@ -13,19 +13,33 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 TBL = os.path.join(ROOT, "tables")
 sys.path.insert(0, HERE)
 from qaqc import (CAL, METHOD_LOD, METHOD_LOQ, RECOVERY, TYPES_QAQC,
-                  NI_LOD_WORKBOOK, NI_LOD_CORRECTION)
+                  DIGEST_FACTOR, NI_LOD_WORKBOOK, NI_LOD_CORRECTION)
 
 metals = ["Pb", "Cd", "Cr", "Cu", "Zn", "Ni", "As"]      # reporting order
 
-# ---- calibration, R^2, slope, LOD, LOQ, and the rescaled method limits ----
-with open(os.path.join(TBL, "table_qaqc_calib_body.tex"), "w") as f:
+# ---- Single supplementary QA/QC table. The whole calibration and detection-limit
+# block now lives in the SI (decision 2026-08-21); the main text carries no
+# calibration table at all. One row per element, running left to right from the
+# calibration through to the method limit on a dry-sample basis, so that
+# 3.3*sigma/m and the digest-to-sample rescaling can both be checked in place.
+# See the note in qaqc.py on why BOTH limit pairs are the *method* limit.
+with open(os.path.join(TBL, "si_calib_solution_body.tex"), "w") as f:
     for m in metals:
         r = CAL.loc[m]
         eq = str(r["Equation"]).replace(" ", "")
         eq = "$" + eq.replace("y=", "y = ").replace("+", " + ").replace("-", " - ") + "$"
         f.write(f"{m} & {eq} & {r['R²']:.4f} & {r['Slope (m)']:.4f} & "
                 f"{r['LOD (mg/L)']:.4f} & {r['LOQ (mg/L)']:.4f} & "
+                f"{DIGEST_FACTOR[m]:.0f} & "
                 f"{METHOD_LOD[m]:.3f} & {METHOD_LOQ[m]:.3f} \\\\\n")
+
+# The main-text calibration table body is no longer produced. If a reviewer asks
+# for it back, restore the six-column form from git history at CHANGES.txt entry
+# "INTERNAL CORRECTION ROUND 2".
+_stale = os.path.join(TBL, "table_qaqc_calib_body.tex")
+if os.path.exists(_stale):
+    os.remove(_stale)
+    print("  removed stale table_qaqc_calib_body.tex (main-text Table 1 retired)")
 
 # ---- spike recovery, one row per matrix ----
 means = {m: [] for m in metals}
@@ -48,7 +62,7 @@ lo, hi = min(allv), max(allv)
 print("Wrote QA/QC table bodies to", TBL)
 print(f"  R2 range          : {CAL['R²'].min():.4f}-{CAL['R²'].max():.4f} "
       f"(low {CAL['R²'].idxmin()}, high {CAL['R²'].idxmax()})")
-print(f"  LOD range (mg/L)  : {CAL['LOD (mg/L)'].min():.4f} ({CAL['LOD (mg/L)'].idxmin()})"
+print(f"  LOD, solution (mg/L): {CAL['LOD (mg/L)'].min():.4f} ({CAL['LOD (mg/L)'].idxmin()})"
       f" - {CAL['LOD (mg/L)'].max():.4f} ({CAL['LOD (mg/L)'].idxmax()})")
 print(f"  method LOD (mg/kg): {min(METHOD_LOD.values()):.3f} "
       f"({min(METHOD_LOD, key=METHOD_LOD.get)}) - {max(METHOD_LOD.values()):.3f} "

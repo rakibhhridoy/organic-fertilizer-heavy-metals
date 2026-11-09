@@ -76,20 +76,54 @@ with open(os.path.join(TBL,"si_kw_body.tex"),"w") as f:
         f.write(f"{m} & {H:.2f} & {p:.4f} & {_padj[m]:.4f} & {e} & "
                 f"{'Yes' if _padj[m]<0.05 else 'No'} & {dn} \\\\\n")
 
+# Spearman rho with significance marking. The p-values come from scipy rather
+# than pandas because pandas .corr() returns no p; both are checked against each
+# other below. Fig. 1b rings cells at p<0.05, the main text quotes p for the Cr
+# pairs, so S7 has to carry the same information or the three disagree.
+_rho_p, _pval = stats.spearmanr(df[metals].values)
 corr = df[metals].corr(method="spearman")
+assert abs(corr.values - _rho_p).max() < 1e-9, "pandas and scipy Spearman disagree"
+
+def _stars(pv):
+    return "$^{***}$" if pv < 0.001 else "$^{**}$" if pv < 0.01 else "$^{*}$" if pv < 0.05 else ""
+
 with open(os.path.join(TBL,"si_corr_body.tex"),"w") as f:
     for i,mi in enumerate(metals):
-        row=[mi]+[f"{corr.values[i,j]:.2f}" if j<=i else "" for j in range(len(metals))]
-        f.write(" & ".join(row)+" \\\\\n")
+        cells=[mi]
+        for j in range(len(metals)):
+            if j < i:   cells.append(f"{corr.values[i,j]:.2f}{_stars(_pval[i,j])}")
+            elif j == i: cells.append("1.00")
+            else:        cells.append("")
+        f.write(" & ".join(cells)+" \\\\\n")
+_ns=[(metals[i],metals[j]) for i in range(len(metals)) for j in range(i)
+     if abs(corr.values[i,j])>=0.30 and _pval[i,j]>=0.05]
+print(f"  S7 correlations   : {sum(1 for i in range(len(metals)) for j in range(i) if _pval[i,j]<0.05)}"
+      f" of 21 pairs significant at p<0.05; |rho|>=0.30 but n.s.: "
+      + (", ".join(f"{a}-{b}" for a,b in _ns) or "none"))
 
+# Supplier identity is deliberately NOT carried in this table. The per-product
+# results are reported against the sample code only, so no measurement can be
+# attributed to a named commercial product; the suppliers are listed separately,
+# alphabetically and without codes or pack sizes, in si_suppliers_body.tex.
 with open(os.path.join(TBL,"si_fulldata_body.tex"),"w") as f:
     prev=None
     for _,r in df.iterrows():
         t=r["Type"]; label=esc(t) if t!=prev else ""; prev=t
-        supplier=esc(r["Brand"]) + (f" ({r['Pack']})" if r["Pack"] else "")
         vals=["$<$LOD" if r[m+"_bdl"] else f"{r[m]:.2f}" for m in metals]
-        f.write(f"{label} & {r['Sample']} & {supplier} & "
+        f.write(f"{label} & {r['Sample']} & "
                 f"{r['pH']:.2f} & {r['EC']:.2f} & " + " & ".join(vals) + " \\\\\n")
+
+# Supplier roster: names only, alphabetical, deliberately in an order that
+# carries no information about sample code, fertilizer type or pack size.
+_suppliers = sorted({str(b).strip() for b in df["Brand"] if str(b).strip()},
+                    key=lambda x: x.lower())
+with open(os.path.join(TBL,"si_suppliers_body.tex"),"w") as f:
+    _half = (len(_suppliers) + 1) // 2
+    _left, _right = _suppliers[:_half], _suppliers[_half:]
+    _right += [""] * (_half - len(_right))
+    for a, b in zip(_left, _right):
+        f.write(f"{esc(a)} & {esc(b)} \\\\\n")
+print(f"  suppliers listed  : {len(_suppliers)} unique names across 35 products")
 
 with open(os.path.join(TBL,"si_desc_body.tex"),"w") as f:
     for m in metals:

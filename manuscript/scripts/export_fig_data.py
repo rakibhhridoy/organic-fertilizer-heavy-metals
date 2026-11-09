@@ -177,12 +177,12 @@ dump("fig_indices.json", {
 # ---- Health risk point estimates by scenario/type ----
 hr = pd.read_csv(os.path.join(EXP, "health_risk.csv"))
 hand = hr[(hr.Scenario == "Handler") & (hr.Type != "OVERALL")]
-overall = {r.Scenario: {"HI": float(r.HI), "CR": float(r.CancerRisk)}
+overall = {r.Scenario: {"HI": float(r.HI), "CR": float(r.CR_AsPb), "CR_Cr": float(r.CR_Cr)}
            for r in hr[hr.Type == "OVERALL"].itertuples()}
 dump("fig_health.json", {
     "types": [SHORT.get(t, t) for t in types],
     "handler": [{"type": SHORT.get(r.Type, r.Type), "HI": float(r.HI),
-                 "CR": float(r.CancerRisk)} for r in hand.itertuples()],
+                 "CR": float(r.CR_AsPb), "CR_Cr": float(r.CR_Cr)} for r in hand.itertuples()],
     "overall": overall,
 })
 

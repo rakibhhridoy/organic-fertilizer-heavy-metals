@@ -1,7 +1,8 @@
 // Human health risk — three panels under one caption:
 //   (a) handler-pathway hazard index by fertilizer type (point estimate)
 //   (b) Monte Carlo distribution of the consumer hazard index
-//   (c) Monte Carlo distribution of the consumer cancer risk
+//   (c) Monte Carlo distribution of the consumer cancer risk: As+Pb filled, the
+//       Cr(VI) term (assumed fraction, not measured) as an outline (revision, R1.1)
 // (a) replaces the health-risk table; (b) and (c) carry the propagated
 // uncertainty that the point estimates cannot show.
 import { svgRoot, serialize, title, panelTag, CAT, d3 } from "./theme.mjs";
@@ -38,6 +39,8 @@ export function render(health, mc) {
     xlabel: "log₁₀(CR)", thresholds: mc.logcr.thresholds,
     fmt: d3.format("~g"), hue: CAT[7],
     thresholdText: t => (t === -4 ? "10⁻⁴" : "10⁻⁶"), H,
+    overlay: mc.logcr_cr, overlayHue: "#333333", p95Side: "right",
+    labels: [["As + Pb", CAT[7], 22], ["Cr(VI), assumed", "outline", 34]],
   });
 
   return serialize(svg);

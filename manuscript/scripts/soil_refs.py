@@ -21,6 +21,7 @@ _lim = pd.read_csv(_LIMITS, comment="#").set_index("Element")
 
 METALS = ["Cu", "Cr", "Pb", "Cd", "Zn", "Ni", "As"]
 CBV = _df["Cbv_mgkg"].to_dict()
+CBV_BD = _df["Cbv_BD_mgkg"].to_dict()   # sensitivity only
 CSV = _df["Csv_mgkg"].to_dict()
 CSV_STRICT = _df["Csv_strict_mgkg"].to_dict()
 TR = _df["Tr_hakanson"].to_dict()

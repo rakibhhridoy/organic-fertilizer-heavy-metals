@@ -21,9 +21,20 @@ Two things are normalised here so that every consumer sees the same numbers:
 
 2. UNITS. Sheet2 quotes the arsenic limits in ug/L (as the string "1.3213 (ppb)")
    and the other six in mg/L. All are normalised to mg/L here, then to a mg/kg
-   method limit using the element's own digest-to-sample factor (25 for the
-   flame-AAS metals; 125 for arsenic, whose aliquot is diluted five-fold before
-   hydride generation).
+   limit using the element's own digest-to-sample factor (25 for the flame-AAS
+   metals; 125 for arsenic, whose aliquot is diluted five-fold before hydride
+   generation).
+
+TERMINOLOGY (corrected 2026-08-19). Both LOD/LOQ sets below are the *method*
+limit. Sheet2's 3.3*sigma/m and 10*sigma/m are computed from sigma, the standard
+deviation of seven reagent blanks carried through the complete digestion,
+filtration and make-up sequence, so they already carry the reagent and matrix
+contribution; they are the method limit expressed on a solution basis (mg/L).
+METHOD_LOD / METHOD_LOQ are the same limit on a sample basis (mg/kg). Neither is
+an instrumental limit: the instrumental LOD/LOQ from the AA240FS manual was never
+used in this work and must not appear in the manuscript. Earlier revisions
+mislabelled the mg/L pair as "instrumental figures of merit characterising the
+calibration", which was wrong on both counts.
 """
 import os
 import re
@@ -110,7 +121,7 @@ TYPES_QAQC = list(_rec["Type"])
 N_SPIKE_REPLICATES = 3   # per matrix; corrected from 5 by the analyst, 2026-08-14
 
 if __name__ == "__main__":
-    print("Calibration (LOD/LOQ in mg/L; method limits in mg/kg):")
+    print("Method LOD/LOQ, solution basis (mg/L) and sample basis (mg/kg):")
     for m in METALS:
         print(f"  {m:>2}  R2={CAL.loc[m,'R²']:.4f}  LOD={CAL.loc[m,'LOD (mg/L)']:.6f}"
               f"  ->  method LOD {METHOD_LOD[m]:.4f}  LOQ {METHOD_LOQ[m]:.4f}"

@@ -5,6 +5,18 @@ manuscript/manuscript.tex
 manuscript/supplementary.tex
 manuscript/references.bib
 
+# The per-journal submission folders are rebuildable bundles: generated copies of
+# the sources above plus the built PDFs. Regenerate the lot with
+# `make submissions` from manuscript/ (see scripts/build_submissions.py).
+# Hand-written text in them (UPLOAD.txt, Submission_Info.txt, cover_letter.tex,
+# Highlights.txt, the questionnaires) is NOT ignored and is tracked below.
+manuscript/submissions/*/upload/
+manuscript/submissions/*/manuscript.pdf
+manuscript/submissions/*/supplementary.pdf
+manuscript/submissions/*/supplementary.tex
+manuscript/submissions/*/cover_letter.pdf
+manuscript/submissions/*/Turnitin/
+
 # --- third-party material -------------------------------------------------
 # Published papers are cited in references.bib with DOIs; the publisher PDFs
 # are not ours to redistribute.

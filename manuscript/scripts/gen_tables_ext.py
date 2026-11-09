@@ -54,23 +54,27 @@ if os.path.exists(_stale): os.remove(_stale); print("removed stale si_apcs_body.
 
 # --- Table: health risk (HI, CR) ---
 # Handler pathway is reported per fertilizer type: it is driven by the product
-# itself and discriminates strongly between categories (~8x spread in HI).
-# Consumer pathway is reported ONLY as a single overall value. Its modelled soil
-# concentration is background + a 10-year fertilizer increment, and the increment
-# contributes ~1% of that burden, so per-type consumer values span just 0.579-0.587
-# (1.4% of the mean). Tabulating them by type would imply a discrimination the
-# model cannot support.
+# itself and discriminates between categories. Consumer pathway is reported as an
+# overall total (background + 10-year increment) and, separately, as the
+# fertilizer-attributable increment alone, because the total is dominated by the
+# assumed soil background (revision, R1.3). Cancer risk is As+Pb, with the Cr(VI)
+# term in its own column because it rests on an assumed Cr(VI) fraction (R1.1).
+def sci(v):
+    m, e = f"{v:.2e}".split("e")
+    return f"${m}\\times10^{{{int(e)}}}$"
 hr=pd.read_csv(os.path.join(OUTP,"health_risk.csv"))
 with open(os.path.join(TBL,"table_health_body.tex"),"w") as f:
     sub=hr[(hr["Scenario"]=="Handler")].reset_index(drop=True)
     for i,r in sub.iterrows():
         scen_lbl = "\\textit{Handler}" if i==0 else ""
         name = ("\\textbf{Overall}" if r['Type']=="OVERALL" else esc(r['Type']))
-        f.write(f"{scen_lbl} & {name} & {r['HI']:.3f} & {esc(r['CancerRisk'])} \\\\\n")
+        f.write(f"{scen_lbl} & {name} & {r['HI']:.4f} & {sci(r['CR_AsPb'])} & {sci(r['CR_Cr'])} \\\\\n")
     f.write("\\midrule\n")
     c=hr[(hr["Scenario"]=="Consumer") & (hr["Type"]=="OVERALL")].iloc[0]
-    f.write(f"\\textit{{Consumer}} & \\textbf{{Overall}} & {c['HI']:.3f} & "
-            f"{esc(c['CancerRisk'])} \\\\\n")
+    f.write(f"\\textit{{Consumer}} & Total (background + increment) & {c['HI']:.3f} & "
+            f"{sci(c['CR_AsPb'])} & {sci(c['CR_Cr'])} \\\\\n")
+    f.write(f" & Fertilizer increment only & {c['HI_incr']:.4f} & "
+            f"{sci(c['CR_AsPb_incr'])} & {sci(c['CR_Cr_incr'])} \\\\\n")
 
 # --- Table: Monte Carlo soil accumulation ---
 mc=pd.read_csv(os.path.join(OUTP,"mc_soil_accumulation.csv"))
@@ -86,7 +90,11 @@ P=importlib.util.module_from_spec(spec); spec.loader.exec_module(P)
 with open(os.path.join(TBL,"si_hhra_params_body.tex"),"w") as f:
     for m in P.metals:
         sf = "--" if P.SF_o[m] is None else f"{P.SF_o[m]:g}"
-        f.write(f"{m} & {P.RfD_o[m]:g} & {P.GIABS[m]:g} & {P.ABS_d[m]:g} & {sf} & "
+        lab = "Cr(VI)" if m=="Cr" else m
+        f.write(f"{lab} & {P.RfD_o[m]:g} & {P.GIABS[m]:g} & {P.ABS_d[m]:g} & {sf} & "
                 f"{P.BG_SOIL[m]:g} & {P.TF[m]:g} \\\\\n")
+        if m=="Cr":
+            f.write(f"Cr(III) & {P.RfD_CR3:g} & {P.GIABS_CR3:g} & {P.ABS_d[m]:g} & -- & "
+                    f"(total Cr) & (total Cr) \\\\\n")
 
 print("Wrote extended table bodies to", TBL)

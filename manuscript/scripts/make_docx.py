@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Build docx/manuscript.docx from manuscript.tex.
 
+    python3 scripts/make_docx.py                 -> docx/manuscript.docx
+    python3 scripts/make_docx.py supplementary   -> docx/supplementary.docx
+
 Run:  python3 scripts/make_docx.py        (from manuscript/)
 Requires: pandoc, and docx/figures/*.png (see the `docx` Makefile target).
 
@@ -24,7 +27,12 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "docx")
 os.makedirs(OUT, exist_ok=True)
 
-src = open(os.path.join(ROOT, "manuscript.tex")).read()
+# Which document to build. Default is the manuscript; pass "supplementary" to
+# build the SI into docx/supplementary.docx with identical Word styling.
+STEM = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("-") else "manuscript"
+if STEM not in ("manuscript", "supplementary"):
+    sys.exit(f"make_docx: unknown document {STEM!r}; expected manuscript or supplementary")
+src = open(os.path.join(ROOT, f"{STEM}.tex")).read()
 
 # ---------------------------------------------------------------- 1. tables --
 def inline_body(m):
@@ -98,14 +106,23 @@ def chem(f):
 src = expand(src, "ce", 1, chem)
 
 # --------------------------------------------------- 4. frontmatter block ---
-TITLE = ("Assessment of Heavy Metal and Arsenic Contamination in Commercial Organic "
-         "Fertilizers in Bangladesh and Its Compliance with National "
-         "Regulatory Limits")
+# Read the title from the source rather than repeating it here. It was hardcoded
+# until 2026-08-16, and silently went stale when the title changed: the built
+# DOCX carried the old title for a day. Never reintroduce a literal here.
+_m = re.search(r"\\title\{(.+?)\}\s*\n\s*\n", src, re.S) or re.search(r"\\title\{(.+?)\}", src, re.S)
+if not _m:
+    sys.exit(f"make_docx: no \\title{{}} found in {STEM}.tex")
+TITLE = " ".join(_m.group(1).split())
+TITLE = re.sub(r"\\\\|\\large\b", " ", TITLE)          # SI title: "Supplementary Material\\ \large <title>"
+TITLE = " ".join(TITLE.split())
 FRONT = r"""\title{%s}
 \author{Ahnaf Ibne Nasir\textsuperscript{a,1} \and
-Md Rakib Hasan\textsuperscript{a,b,1,*} \and
-Md Harun Mia\textsuperscript{a} \and
-Md Raisuddin Sikder\textsuperscript{a}}
+Md Rakib Hasan\textsuperscript{a,b,1} \and
+Md Harun Mia\textsuperscript{a,*} \and
+Tasnim Jabin Jui\textsuperscript{c} \and
+Mehedi Hasan\textsuperscript{d} \and
+Md. Jashim Uddin\textsuperscript{a} \and
+AHM Zulfiquar Ali\textsuperscript{a}}
 \date{}
 \maketitle
 
@@ -113,7 +130,11 @@ Md Raisuddin Sikder\textsuperscript{a}}
 
 \noindent\textsuperscript{b}\,Fermium Systems, Dhaka 1207, Bangladesh
 
-\noindent\textsuperscript{*}\,Corresponding author. Email: rakibhhridoy@fermium.systems
+\noindent\textsuperscript{c}\,Department of Disaster Science and Climate Resilience, University of Dhaka, Dhaka 1000, Bangladesh
+
+\noindent\textsuperscript{d}\,Institute of National Analytical Research and Service (INARS), BCSIR, Dhaka, Bangladesh
+
+\noindent\textsuperscript{*}\,Corresponding author. Email: mdharunmia65@du.ac.bd
 
 \noindent\textsuperscript{1}\,Ahnaf Ibne Nasir and Md Rakib Hasan contributed equally to this work.
 
@@ -199,10 +220,10 @@ src = re.sub(r"\\begin\{(table|figure)\}(.*?)\\end\{\1\}", _label_caption,
 src = re.sub(r"\\bibliographystyle\{[^}]*\}\s*\\bibliography\{[^}]*\}",
              r"\\section*{References}", src)
 
-tmp = os.path.join(OUT, "_manuscript_pandoc.tex")
+tmp = os.path.join(OUT, f"_{STEM}_pandoc.tex")
 open(tmp, "w").write(src)
 
-cmd = ["pandoc", tmp, "-f", "latex", "-o", os.path.join(OUT, "manuscript.docx"),
+cmd = ["pandoc", tmp, "-f", "latex", "-o", os.path.join(OUT, f"{STEM}.docx"),
        "--citeproc", "--bibliography", os.path.join(ROOT, "references.bib"),
        "--resource-path", ROOT, "--number-sections", "--wrap=none"]
 ref = os.path.join(OUT, "reference.docx")
@@ -219,7 +240,7 @@ subprocess.run(cmd, check=True, cwd=ROOT)
 # reference.docx, because it cannot silently drift from the source document.
 import shutil, zipfile
 
-DOCX = os.path.join(OUT, "manuscript.docx")
+DOCX = os.path.join(OUT, f"{STEM}.docx")
 
 TNR = ('<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" '
        'w:cs="Times New Roman" w:eastAsia="Times New Roman"/>')
@@ -342,5 +363,5 @@ with zipfile.ZipFile(DOCX) as zin, \
         zout.writestr(item, data)
 shutil.move(tmp_zip, DOCX)
 
-print("  wrote docx/manuscript.docx  (11pt Times New Roman, justified, 1.5 spacing, "
+print(f"  wrote docx/{STEM}.docx  (11pt Times New Roman, justified, 1.5 spacing, "
       "continuous line numbers)")

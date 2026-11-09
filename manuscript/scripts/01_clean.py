@@ -28,7 +28,8 @@ Per-metal reagent-blank offsets already subtracted in Sheet1 (mg/kg):
 The arsenic blank is 0.01729 ug/L, subtracted before the ug/kg conversion.
 
 Steps: derive Type/Brand/Pack from the supplier label; merge arsenic; coerce BDL
-to non-detect and substitute LOD/2; flag outliers (Grubbs) but RETAIN them as valid.
+to non-detect and substitute half the lowest quantified value (NOT half the method
+LOD, which is a different quantity); flag outliers (Grubbs) but RETAIN them as valid.
 """
 import os, re, sys, pandas as pd, numpy as np
 from scipy import stats
@@ -148,7 +149,9 @@ for m in metals:
     df[m + "_bdl"] = df[m].astype(str).str.strip().str.upper().eq("BDL")
     df[m] = pd.to_numeric(df[m], errors="coerce")
 
-# Rule 1: non-detects -> LOD/2, LOD taken as the lowest quantified value for that
+# Rule 1: non-detects -> half the lowest quantified value for that element. This is
+# deliberately NOT half the method LOD from qaqc.py; see CHANGES.txt round 2. The
+# 'lod' name below is historical and means 'lowest quantified value' for that
 # element on the reported (mg/kg) scale.
 #
 # Non-detects are classified operationally -- a value is a non-detect when blank
