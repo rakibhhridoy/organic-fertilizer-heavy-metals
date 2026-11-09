@@ -2,11 +2,11 @@
 
 Data, analysis pipeline and manuscript source for:
 
-> *Assessment of Heavy Metal and Arsenic Contamination in Commercial Organic Fertilizers in
-> Bangladesh with Soil Accumulation, Regulatory Compliance, and Health Risk Evaluation.*
+> *Heavy Metal Contamination in Commercial Organic Fertilizers Marketed in Greater Dhaka,
+> Bangladesh: Regulatory Compliance, Soil Accumulation and Health Risk.*
 > Ahnaf Ibne Nasir, Md Rakib Hasan, Md Harun Mia\*, Tasnim Jabin Jui, Mehedi Hasan,
 > Md. Jashim Uddin, AHM Zulfiquar Ali.
-> Target journal: Environmental Geochemistry and Health.
+> Journal of Hazardous Materials Advances, HAZADV-D-26-02471 (revision resubmitted 2026-11-09).
 > \*Corresponding author: mdharunmia65@du.ac.bd
 
 Thirty-five commercial organic fertilizer products across seven categories,
